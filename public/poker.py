@@ -5,7 +5,7 @@ from tkinter import messagebox
 
 #カードのデッキを作成
 #スート
-suits = ["ハート","クラブ","ダイヤ","スペード"]
+suits = ["♥","♣","♦","♠"]
 #数字
 ranks = ["2","3","4","5","6","7","8","9","10","J","Q","K","A"]
 
@@ -13,7 +13,7 @@ ranks = ["2","3","4","5","6","7","8","9","10","J","Q","K","A"]
 deck = []
 for suit in suits:
     for rank in ranks:
-        card = f"{suit}の{rank}" #例：ハートのA
+        card = f"{suit} : {rank}" #例：ハートのA
         deck.append(card)
 
 #手札を保存するリスト
@@ -23,8 +23,8 @@ hand = []
 def evaluate_hand():
     global evaluate_hand
 
-    hand_suits = [card.split("の")[0] for card in hand]#スートだけ抽出
-    hand_ranks = [card.split("の")[1] for card in hand]#数字だけ抽出
+    hand_suits = [card.split(" : ")[0] for card in hand]#スートだけ抽出
+    hand_ranks = [card.split(" : ")[1] for card in hand]#数字だけ抽出
 
     #各数字を数値化してソート（ストレート判定用）
     rank_order = {"2": 2, "3": 3, "4": 4, "5": 5, "6": 6, "7": 7, "8": 8, "9": 9, "10": 10, "J": 11, "Q": 12, "K": 13, "A": 14}
@@ -92,19 +92,22 @@ root = tk.Tk()
 root.title("一人ポーカー")
 
 #UI部品作成
-welcome_label = tk.Label(root,text="カードを引いて、5枚の手札で役を完成させよう",font=("Arial",14))
+welcome_label = tk.Label(root,text="カードを引いて、5枚の手札で役を完成させよう",font=("Arial",14,"bold"),bg = "dark green",fg="white")
 welcome_label.pack(pady=20)
 
-draw_button = tk.Button(root,text="カードを引く",font=("Arial",12),command=draw_cards) 
+draw_button = tk.Button(root,text="カードを引く",font=("Arial",12,"bold"),bg = "light green",fg = "black",command=draw_cards) 
 draw_button.pack(pady=10)
 
-hand_label = tk.Label(root, text="手札：まだ引いていません",font = ("Arial",12))
+hand_label = tk.Label(root, text="手札：まだ引いていません",font = ("Arial",12,"bold"),bg = "darkgreen", fg="white")
 hand_label.pack(pady=10)
 
-eval_button = tk.Button(root,text="役を判定",font=("Arial",12),command = evaluate_hand)
+result_label = tk.Label(root,text="約判定結果がここに表示",font = ("Arial",12,"bold"),bg = "dark green",fg="white")
+result_label.pack(pady=20)
+
+eval_button = tk.Button(root,text="役を判定",font=("Arial",12,"bold"), bg="light green",fg="black",command = evaluate_hand)
 eval_button.pack(pady=10)
 
-exit_button = tk.Button(root,text = "終了", font=("Arial",12),command=root.quit)
+exit_button = tk.Button(root,text = "終了", font=("Arial",12,"bold"), bg="light green",fg = "black",command=root.quit)
 exit_button.pack(pady=20)
 
 #メインループ実行
