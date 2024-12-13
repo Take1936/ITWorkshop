@@ -19,6 +19,26 @@ for suit in suits:
 #手札を保存するリスト
 hand = []
 
+#スートごとの色を定義
+suit_colors = {
+    "♥":"red",
+    "♦":"green",
+    "♣":"purple",
+    "♠":"blue"
+}
+
+#手札表示用関数
+def draw_cards():
+    global hand
+
+    #手札リセット
+    hand = random.sample(deck,5)    #デッキからランダムに5枚引く
+
+    #手札表示（色付き）
+    hand_label.delete("1.0",tk.END) #テキストエリアをクリア
+    for card in hand:
+        suit,rank = card.sprit(" : ")
+        hand_label.insert(tk.END,f"{suit} : {rank}\n"suit)  #スートごとにタグを設定
 #役の判定関数
 def evaluate_hand():
     global evaluate_hand
@@ -91,6 +111,9 @@ def draw_cards():
 root = tk.Tk()
 root.title("一人ポーカー")
 
+# ウィンドウの背景色を設定
+root.configure(background="dark green")
+
 #UI部品作成
 welcome_label = tk.Label(root,text="カードを引いて、5枚の手札で役を完成させよう",font=("Arial",14,"bold"),bg = "dark green",fg="white")
 welcome_label.pack(pady=20)
@@ -112,6 +135,7 @@ exit_button.pack(pady=20)
 
 #メインループ実行
 root.mainloop()
+
 # -------------------------
 
 # #デバッグ用
