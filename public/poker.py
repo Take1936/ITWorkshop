@@ -115,6 +115,12 @@ def evaluate_hand():
         else:
             suit_counts[rank] = 1
 
+    #特殊ケース：A-5のストレート
+    if set (hand_ranks_numeric)=={2,3,4,5,14}: #A=14として存在し、且つ2-5が含まれる
+        result = "ストレート\n-数字が連続-"
+    elif 5 in suit_counts.values() and hand_ranks_numeric == [10,11,12,13,14]: # ロイヤルストレートフラッシュ
+        result = "ロイヤルストレートフラッシュ！ \n-同じスートかつ10・J・Q・K・Aの組み合わせ-"
+
     #役の判定
     result = ""
     if 5 in suit_counts.values() and hand_ranks_numeric == [10,11,12,13,14]: #ロイヤルストレートフラッシュ
@@ -126,10 +132,13 @@ def evaluate_hand():
     elif all(hand_ranks_numeric[i] + 1 == hand_ranks_numeric[i+1]for i in range(4)):    #ストレート
         result = "ストレート\n-数字が連続-"
 
+    elif 4 in rank_counts.values(): #フォーカード
+        result = "フォーカード\n-4つの同じ数字-"
+
     elif 5 in suit_counts.values(): #フラッシュ
         result = "フラッシュ\n-全て同じスート-"
 
-    elif 4 in rank_counts.values() and 2 in rank_counts.values():
+    elif 3 in rank_counts.values() and 2 in rank_counts.values():
         result = "フルハウス\n-スリーカード+ワンペア-"
 
     elif 3 in rank_counts.values(): #スリーカード
@@ -151,14 +160,51 @@ def evaluate_hand():
 def change_cards():
     global hand , selected_cards
 
-    #選ばれたカードを交換
+    #選ばれたカードだけを交換
     for idx in selected_cards:
         new_card = random.choice([card for card in deck if card not in hand])
         hand[idx] = new_card
 
-    selected_cards.clear()  #選択状態リセット
-    draw_cards()
+    #表示されている手札を更新（選ばれたカードのみ）
+    for idx,widget in enumerate(hand_frame.winfo_children()):
+        if idx in selected_cards:
+            suit,rank = hand[idx].split(" : ")
+            card_key = f"{suit}_{rank}"
+            card_image = card_images.get(card_key)
+            if card_image:
+                widget.config(image=card_image)
+    
+    selected_cards.clear() #選択状態リセット
     change_button.config(state="disabled")  #チェンジボタン無効化
+
+# #----デバッグ用チート----　検索用「チート関数」
+
+# def generate_hand_for_role(role):
+#     """指定された役に対する手札を生成"""
+#     if role == "ロイヤルストレートフラッシュ":
+#         hand = ["heart : 10", "heart : J", "heart : Q", "heart : K", "heart : A"]
+#     elif role == "ストレートフラッシュ":
+#         hand = ["spade : 5", "spade : 6", "spade : 7", "spade : 8", "spade : 9"]
+#     elif role == "フォーカード":
+#         hand = ["spade : 9", "heart : 9", "club : 9", "diamond : 9", "spade : 4"]
+#     elif role == "フルハウス":
+#         hand = ["heart : A", "diamond : A", "spade : A", "diamond : 5", "heart : 5"]
+#     elif role == "フラッシュ":
+#         hand = ["spade : 5", "spade : 8", "spade : A", "spade : 3", "spade : K"]
+#     elif role == "ストレート":
+#         hand = ["spade : 5", "heart : 6", "spade : 7", "diamond : 8", "club : 9"]
+#     elif role == "スリーカード":
+#         hand = ["spade : 5", "heart : 5", "club : 5", "spade : A", "diamond : Q"]
+#     elif role == "ツーペア":
+#         hand = ["spade : J", "diamond : J", "heart : 6", "club : 6", "spade : 4"]
+#     elif role == "ワンペア":
+#         hand = ["spade : 5", "diamond : 5", "heart : 8", "club : 6", "spade : 4"]
+#     else:  # ブタ
+#         hand = ["spade : 2", "heart : 4", "diamond : 6", "club : 9", "heart : Q"]
+
+#     return hand
+
+# #----デバッグ用チート----
 
 #メインウィンドウ作成
 root = tk.Tk()
@@ -179,11 +225,11 @@ load_card_images()
 hand_frame = tk.Frame(root,bg="dark green")
 hand_frame.pack(pady=10)
 
+hand_label = tk.Label(root, text="あなたの手札",font = ("Arial",12,"bold"),bg = "darkgreen", fg="white")
+hand_label.pack(pady=10)
+
 draw_button = tk.Button(root,text="カードを引く",font=("Arial",12,"bold"),bg = "light green",fg = "black",command=draw_cards) 
 draw_button.pack(pady=10)
-
-hand_label = tk.Label(root, text="手札：まだ引いていません",font = ("Arial",12,"bold"),bg = "darkgreen", fg="white")
-hand_label.pack(pady=10)
 
 result_label = tk.Label(root,text="役判定結果がここに表示",font = ("Arial",12,"bold"),bg = "dark green",fg="white")
 result_label.pack(pady=20)
@@ -197,99 +243,48 @@ eval_button.pack(pady=10)
 exit_button = tk.Button(root,text = "終了", font=("Arial",12,"bold"), bg="light green",fg = "black",command=root.quit)
 exit_button.pack(pady=20)
 
+# # ここからデバッグ用------------　検索用「チートUI」
+
+# #チート用役選択メニュー
+# cheat_label = tk.Label(root,text="役を選んで確実に出すチート機能",font=("Arial",12,"bold"),bg="dark green",fg="white")
+
+# cheat_label.pack(pady=10)
+
+# roles = ["ロイヤルストレートフラッシュ","ストレートフラッシュ","フォーカード","フルハウス","フラッシュ","ストレート","スリーカード","ツーペア","ワンペア","ブタ"]
+
+# selected_role = tk.StringVar()
+# selected_role.set("ロイヤルストレートフラッシュ")   #初期値
+
+# role_menu = tk.OptionMenu(root,selected_role,*roles)
+# role_menu.pack(pady=5)
+
+# def cheat_hand():
+#     global hand
+#     hand = generate_hand_for_role(selected_role.get())  #チート用手札生成
+#     draw_cheat_cards()
+
+# #チート用手札表示関数
+# def draw_cheat_cards():
+#     #表示フレームのリセット
+#     for widget in hand_frame.winfo_children():
+#         widget.destroy()
+
+#     #カード画像表示
+#     for card in hand:
+#         suit,rank = card.split(" : ")
+#         card_key = f"{suit}_{rank}"
+#         card_image = card_images.get(card_key)
+#         if card_image:
+#             img_label = tk.Label(hand_frame, image=card_image,bg="dark green",bd=2,relief="flat")
+#             img_label.pack(side="left",padx=5)
+#     #チェンジボタン無効化
+#     change_button.config(state="disabled")
+
+# #チートボタン
+# cheat_button = tk.Button(root,text="チートで役を出す",font=("Arial",12,"bold"),bg="red",fg="white",command = cheat_hand)
+# cheat_button.pack(pady=10)
+
+# # デバッグ終わり------------
+
 #メインループ実行
 root.mainloop()
-# -------------------------
-
-# #デバッグ用
-# print("山札補充完了")
-# print(deck)
-
-# #５枚組のデッキを作る（プレイヤーが一枚ずつカードを引く）
-# hand = [] #手札(プレイヤーの手札を保存するリスト)
-
-# print("\nカードを１枚ずつ引いて、５枚で役を完成させよう")
-
-# #カードを引く
-# for i in range(5):
-#     input(F"Enterで{i+1}枚目のカードを引く")
-#     card = random.choice(deck) #山札からランダムにカードを選ぶ
-#     deck.remove(card) #引いたカードを山札から削除
-#     hand.append(card) #引いたカードを手札に加える
-#     print(f"{i+1}枚目のカードは「{card}」です")
-# time.sleep(0.5)
-# print(f"あなたの手札：{hand}\n")
-
-# #役チェック機能
-# input("役を判定するぞ")
-# #手札のスートと数字に分けて考える
-# hand_suits = [card.split("の")[0]for card in hand] #スートだけ抽出
-# hand_ranks = [card.split("の")[1]for card in hand] #数字だけ抽出
-
-# #各数字を数値化してソート（ストレート判定用）
-# rank_order = {"2":2,"3":3,"4":4,"5":5,"6":6,"7":7,"8":8,"9":9,"10":10,"J":11,"Q":12,"K":13,"A":14}
-# hand_ranks_numeric = sorted([rank_order[rank]for rank in hand_ranks]) #数値化＆ソート
-
-# #各数字の出現回数を数える
-# rank_counts = {}
-# for rank in hand_ranks:
-#     if rank in rank_counts:
-#         rank_counts[rank] += 1
-#     else:
-#         rank_counts[rank] = 1
-
-# #各スートの出現回数を数える
-# suit_counts = {}
-# for rank in hand_suits:
-#     if rank in suit_counts:
-#         suit_counts[suit] += 1
-#     else:
-#         suit_counts[suit] = 1
-
-# #役の判定
-# if 5 in suit_counts.values() and hand_ranks_numeric == [10,11,12,13,14]:#同じスートかつ10､J,Q,K,Aの並び
-#     print("ロイヤルストレートフラッシュ！")
-#     time.sleep(2)
-#     print("…あんた何者…？")
-#     print("-同じスートかつ１０・Ｊ・Ｑ・Ｋ・Ａの組み合わせ-")
-
-# elif 5 in suit_counts.values() and all(hand_ranks_numeric[i]+1 == hand_ranks_numeric[i+1]for i in range(4)):#スート同じ&連続した数字
-#     print("ストレートフラッシュ！")
-#     print("-同じスート且つ連続した数字-")
-
-# elif 5 in suit_counts.values(): #全て同じスート
-#     print("フラッシュ！")
-#     print("-全て同じスート-")
-
-# elif all(hand_ranks_numeric[i]+1 ==hand_ranks_numeric[i+1]for i in range(4)):
-#     print("ストレート！")
-#     print("-連続した数字-")
-    
-# elif 4 in rank_counts.values(): #4枚が同じ数字
-#     print("フォーカード")
-#     print("-４つの同じ数字-")
-
-# elif 3 in rank_counts.values() and 2 in rank_counts.values(): #3枚と2枚
-#     print("フルハウス")
-#     print("-スリーカード＋ワンペア-")
-
-# elif 3 in rank_counts.values(): #3枚が同じ数字
-#     print("スリーカード")
-#     print("-３つの同じ数字-")
-
-# elif list(rank_counts.values()).count(2) == 2: #2枚ペアが2つ
-#     print("ツーペア")
-#     print("-２組の同じ数字のペア-")
-
-# elif 2 in rank_counts.values(): #2枚が同じ数字
-#     print("ワンペア")
-#     print("-２つの同じ数字-")
-
-# else:
-#     print("ブタ")
-#     print("-役なし-")
-
-# print("ゲームオーバー")
-# print("また遊んでね！")
-
-# -------------------------
