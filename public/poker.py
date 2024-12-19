@@ -19,7 +19,7 @@ for suit in suits:
         deck.append(card)
 
 #画像のパス設定
-CARD_IMAGE_DIR = r"C:/Users/8Java8/Desktop/workshop/ITWorkshop/public/image/"
+CARD_IMAGE_DIR = "./image/"
  #画像フォルダのパス
 
 #カード画像格納のディクショナリ
@@ -116,45 +116,53 @@ def evaluate_hand():
             suit_counts[rank] = 1
 
     #特殊ケース：A-5のストレート
-    if set (hand_ranks_numeric)=={2,3,4,5,14}: #A=14として存在し、且つ2-5が含まれる
-        result = "ストレート\n-数字が連続-"
-    elif 5 in suit_counts.values() and hand_ranks_numeric == [10,11,12,13,14]: # ロイヤルストレートフラッシュ
-        result = "ロイヤルストレートフラッシュ！ \n-同じスートかつ10・J・Q・K・Aの組み合わせ-"
 
-    #役の判定
-    result = ""
-    if 5 in suit_counts.values() and hand_ranks_numeric == [10,11,12,13,14]: #ロイヤルストレートフラッシュ
-        result = "ロイヤルストレートフラッシュ！ \n-同じスートかつ10・J・Q・K・Aの組み合わせ-"
+    if set (hand_ranks_numeric)=={2,3,4,5,14}: #A=14として存在し、且つ2-5が含まれる
+        result = "ストレート"
+        result_detail = "-数字が連続-"
+
+    elif 5 in suit_counts.values() and hand_ranks_numeric == [10,11,12,13,14]: # ロイヤルストレートフラッシュ
+        result = "ロイヤルストレートフラッシュ！"
+        result_detail = "-同じスートかつ10・J・Q・K・Aの組み合わせ-"
+
+    #その他の役の判定
 
     elif 5 in suit_counts.values() and all(hand_ranks_numeric[i] + 1 == hand_ranks_numeric[i+1]for i in range(4)):  #ストレートフラッシュ
-        result = "ストレートフラッシュ！\n-同じスートかつ連続した数字-"
+        result = "ストレートフラッシュ！"
+        result_detail = "-同じスート かつ 連続した数字-"
 
     elif all(hand_ranks_numeric[i] + 1 == hand_ranks_numeric[i+1]for i in range(4)):    #ストレート
-        result = "ストレート\n-数字が連続-"
+        result = "ストレート"
+        result_detail = "-連続した数字-"
 
     elif 4 in rank_counts.values(): #フォーカード
-        result = "フォーカード\n-4つの同じ数字-"
+        result = "フォーカード"
+        result_detail = "-４つの同じ数字-"
 
     elif 5 in suit_counts.values(): #フラッシュ
-        result = "フラッシュ\n-全て同じスート-"
-
+        result = "フラッシュ"
+        result_detail = "-全て同じスート-"
     elif 3 in rank_counts.values() and 2 in rank_counts.values():
-        result = "フルハウス\n-スリーカード+ワンペア-"
-
+        result = "フルハウス"
+        result_detail ="-スリーカード+ワンペア-"
     elif 3 in rank_counts.values(): #スリーカード
-        result = "スリーカード\n-3つの同じ数字-"
-
+        result = "スリーカード"
+        result_detail = "-3つの同じ数字-"
     elif list(rank_counts.values()).count(2) == 2:  #ツーペア
-        result = "ツーペア\n-2組の同じ数字のペア-"
-
+        result = "ツーペア"
+        result_detail = "-2組の同じ数字のペア-"
     elif 2 in rank_counts.values(): #ワンペア
-        result = "ワンペア\n-2つの同じ数字-"
-
+        result = "ワンペア"
+        result_detail = "-2つの同じ数字-"
     else: #ブタ
-        result = "ブタ\n-役なし-"
-
+        result = "ブタ"
+        result_detail = "-役なし-"
     #結果をウィンドウ内のラベルに表示
-    result_label.config(text = f"この役は…:\n{result}")
+    result_label.config(
+        text = f"{result}\n{result_detail}",
+        font = ("Arial",16,"bold"),
+        fg = "yellow"
+    )
 
 #チェンジボタン
 def change_cards():
@@ -177,34 +185,34 @@ def change_cards():
     selected_cards.clear() #選択状態リセット
     change_button.config(state="disabled")  #チェンジボタン無効化
 
-# #----デバッグ用チート----　検索用「チート関数」
+#----デバッグ用チート----　検索用「チート関数」
 
-# def generate_hand_for_role(role):
-#     """指定された役に対する手札を生成"""
-#     if role == "ロイヤルストレートフラッシュ":
-#         hand = ["heart : 10", "heart : J", "heart : Q", "heart : K", "heart : A"]
-#     elif role == "ストレートフラッシュ":
-#         hand = ["spade : 5", "spade : 6", "spade : 7", "spade : 8", "spade : 9"]
-#     elif role == "フォーカード":
-#         hand = ["spade : 9", "heart : 9", "club : 9", "diamond : 9", "spade : 4"]
-#     elif role == "フルハウス":
-#         hand = ["heart : A", "diamond : A", "spade : A", "diamond : 5", "heart : 5"]
-#     elif role == "フラッシュ":
-#         hand = ["spade : 5", "spade : 8", "spade : A", "spade : 3", "spade : K"]
-#     elif role == "ストレート":
-#         hand = ["spade : 5", "heart : 6", "spade : 7", "diamond : 8", "club : 9"]
-#     elif role == "スリーカード":
-#         hand = ["spade : 5", "heart : 5", "club : 5", "spade : A", "diamond : Q"]
-#     elif role == "ツーペア":
-#         hand = ["spade : J", "diamond : J", "heart : 6", "club : 6", "spade : 4"]
-#     elif role == "ワンペア":
-#         hand = ["spade : 5", "diamond : 5", "heart : 8", "club : 6", "spade : 4"]
-#     else:  # ブタ
-#         hand = ["spade : 2", "heart : 4", "diamond : 6", "club : 9", "heart : Q"]
+def generate_hand_for_role(role):
+    """指定された役に対する手札を生成"""
+    if role == "ロイヤルストレートフラッシュ":
+        hand = ["heart : 10", "heart : J", "heart : Q", "heart : K", "heart : A"]
+    elif role == "ストレートフラッシュ":
+        hand = ["spade : 5", "spade : 6", "spade : 7", "spade : 8", "spade : 9"]
+    elif role == "フォーカード":
+        hand = ["spade : 9", "heart : 9", "club : 9", "diamond : 9", "spade : 4"]
+    elif role == "フルハウス":
+        hand = ["heart : A", "diamond : A", "spade : A", "diamond : 5", "heart : 5"]
+    elif role == "フラッシュ":
+        hand = ["spade : 5", "spade : 8", "spade : A", "spade : 3", "spade : K"]
+    elif role == "ストレート":
+        hand = ["spade : 5", "heart : 6", "spade : 7", "diamond : 8", "club : 9"]
+    elif role == "スリーカード":
+        hand = ["spade : 5", "heart : 5", "club : 5", "spade : A", "diamond : Q"]
+    elif role == "ツーペア":
+        hand = ["spade : J", "diamond : J", "heart : 6", "club : 6", "spade : 4"]
+    elif role == "ワンペア":
+        hand = ["spade : 5", "diamond : 5", "heart : 8", "club : 6", "spade : 4"]
+    else:  # ブタ
+        hand = ["spade : 2", "heart : 4", "diamond : 6", "club : 9", "heart : Q"]
 
-#     return hand
+    return hand
 
-# #----デバッグ用チート----
+#----デバッグ用チート----
 
 #メインウィンドウ作成
 root = tk.Tk()
@@ -215,7 +223,7 @@ root.config(background="dark green")
 root.configure(background="dark green")
 
 #UI部品作成
-welcome_label = tk.Label(root,text="カードを引いて、5枚の手札で役を完成させよう",font=("Arial",14,"bold"),bg = "dark green",fg="white")
+welcome_label = tk.Label(root,text="　　　　　　　　　　ぼっちdeポーカー　　　　　　　　　　",font=("Arial",14,"bold"),bg = "dark green",fg="white")
 welcome_label.pack(pady=20)
 
 #画像読み込み
@@ -243,48 +251,48 @@ eval_button.pack(pady=10)
 exit_button = tk.Button(root,text = "終了", font=("Arial",12,"bold"), bg="light green",fg = "black",command=root.quit)
 exit_button.pack(pady=20)
 
-# # ここからデバッグ用------------　検索用「チートUI」
+# ここからデバッグ用------------　検索用「チートUI」
 
-# #チート用役選択メニュー
-# cheat_label = tk.Label(root,text="役を選んで確実に出すチート機能",font=("Arial",12,"bold"),bg="dark green",fg="white")
+#チート用役選択メニュー
+cheat_label = tk.Label(root,text="役を選んで確実に出すチート機能",font=("Arial",12,"bold"),bg="dark green",fg="white")
 
-# cheat_label.pack(pady=10)
+cheat_label.pack(pady=10)
 
-# roles = ["ロイヤルストレートフラッシュ","ストレートフラッシュ","フォーカード","フルハウス","フラッシュ","ストレート","スリーカード","ツーペア","ワンペア","ブタ"]
+roles = ["ロイヤルストレートフラッシュ","ストレートフラッシュ","フォーカード","フルハウス","フラッシュ","ストレート","スリーカード","ツーペア","ワンペア","ブタ"]
 
-# selected_role = tk.StringVar()
-# selected_role.set("ロイヤルストレートフラッシュ")   #初期値
+selected_role = tk.StringVar()
+selected_role.set("ロイヤルストレートフラッシュ")   #初期値
 
-# role_menu = tk.OptionMenu(root,selected_role,*roles)
-# role_menu.pack(pady=5)
+role_menu = tk.OptionMenu(root,selected_role,*roles)
+role_menu.pack(pady=5)
 
-# def cheat_hand():
-#     global hand
-#     hand = generate_hand_for_role(selected_role.get())  #チート用手札生成
-#     draw_cheat_cards()
+def cheat_hand():
+    global hand
+    hand = generate_hand_for_role(selected_role.get())  #チート用手札生成
+    draw_cheat_cards()
 
-# #チート用手札表示関数
-# def draw_cheat_cards():
-#     #表示フレームのリセット
-#     for widget in hand_frame.winfo_children():
-#         widget.destroy()
+#チート用手札表示関数
+def draw_cheat_cards():
+    #表示フレームのリセット
+    for widget in hand_frame.winfo_children():
+        widget.destroy()
 
-#     #カード画像表示
-#     for card in hand:
-#         suit,rank = card.split(" : ")
-#         card_key = f"{suit}_{rank}"
-#         card_image = card_images.get(card_key)
-#         if card_image:
-#             img_label = tk.Label(hand_frame, image=card_image,bg="dark green",bd=2,relief="flat")
-#             img_label.pack(side="left",padx=5)
-#     #チェンジボタン無効化
-#     change_button.config(state="disabled")
+    #カード画像表示
+    for card in hand:
+        suit,rank = card.split(" : ")
+        card_key = f"{suit}_{rank}"
+        card_image = card_images.get(card_key)
+        if card_image:
+            img_label = tk.Label(hand_frame, image=card_image,bg="dark green",bd=2,relief="flat")
+            img_label.pack(side="left",padx=5)
+    #チェンジボタン無効化
+    change_button.config(state="disabled")
 
-# #チートボタン
-# cheat_button = tk.Button(root,text="チートで役を出す",font=("Arial",12,"bold"),bg="red",fg="white",command = cheat_hand)
-# cheat_button.pack(pady=10)
+#チートボタン
+cheat_button = tk.Button(root,text="チートで役を出す",font=("Arial",12,"bold"),bg="red",fg="white",command = cheat_hand)
+cheat_button.pack(pady=10)
 
-# # デバッグ終わり------------
+# デバッグ終わり------------
 
 #メインループ実行
 root.mainloop()
