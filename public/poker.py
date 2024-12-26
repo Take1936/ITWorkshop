@@ -142,6 +142,7 @@ def evaluate_hand():
     elif 5 in suit_counts.values(): #フラッシュ
         result = "フラッシュ"
         result_detail = "-全て同じスート-"
+        
     elif 3 in rank_counts.values() and 2 in rank_counts.values():
         result = "フルハウス"
         result_detail ="-スリーカード+ワンペア-"

@@ -5,7 +5,68 @@ import time
 import tkinter as tk
 from tkinter import PhotoImage
 from PIL import Image,ImageTk
+# ---
+player1_hand=[]
+player2_hand=[]
+player1_result=""
+player2_result=""
+
+# プレイヤー2人の手札を描画する関数
+def draw_playder_hands():
+    global player1_hand,player2_hand
+    player1_hand = random.sample(deck,5)
+    player2_hand =random.sample([card for card in deck if card not in player1_hand],5)
+
+    #表示フレームのリセット
+    for widget in player1_frame.winfo_children():
+        widget.destroy()
+    for widget in player2_frame.winfo_children():
+        widget.destroy()
+
+    #プレイヤー１のカードを表示
+    for card in player1_hand:
+        suit, rank = card.split(" : ")
+        card_key = f"{suit}_{rank}"
+        card_image = card_images.get(card_key)
+        if card_image:
+            img_label = tk.Label(player2_frame,image = card_image,bg="dark green",bd = 2,relief="flat")
+            img_label.pack(side="left",padx=5)
+    #判定ボタン有効化
+    battle_button.config(state="normal")
+
+#プレイヤーの役を判定する関数
+def evaluate_player_hands():
+    global player1_result,player2_result
+
+    player1_result = evaluate_hand_result(player1_hand)
+    player2_result = evaluate_hand_result(player2_hand)
+
+    #結果表示
+    battle_result_label.config(
+        text=f"プレイヤー１の役：{player1_result}\nプレイヤー２の役：{player2_result}\n\n{determine_winner(player1_result,player2_result)}",
+        font = ("Arial",16,"bold"),
+        fg="yellow"
+    )
+    # 役の強さを比較して勝者を決定する関数
+    def determine_winner(result1,result2):
+        hand_strength=[
+        "ブタ", "ワンペア", "ツーペア", "スリーカード","ストレート", "フラッシュ", "フルハウス","フォーカード", "ストレートフラッシュ", "ロイヤルストレートフラッシュ"
+        ]
+
+    strength1 = hand_strength.index(result1)
+    strength2 = hand_strength.index(result2)
+
+    if strength1 >strength2:
+        return "プレイヤー１の勝ち"
+    if strength1 <strength2:
+        return "プレイヤー２の勝ち"
+    else:
+        return "引き分け"
+    #作業ここまで
+
+# ---
 #カードのデッキを作成
+
 #スート
 suits = ["heart","club","diamond","spade"]
 #数字
